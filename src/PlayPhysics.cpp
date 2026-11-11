@@ -5,6 +5,15 @@ void PlayPhysics::initWorld() {
 b2Vec2 gravity(0.0f, -m_settings.gravity);
 m_world = new b2World(gravity);
 s_active = this;
+
+b2BodyDef groundDef;
+b2Body* ground = m_world->CreateBody(&groundDef);
+b2PolygonShape groundBox;
+groundBox.SetAsBox(99999.0f, 1.0f, b2Vec2(0.0f, groundHeight - 1.0f), 0.0f);
+b2FixtureDef groundFixture;
+groundFixture.shape = &groundBox;
+groundFixture.friction = 0.5f;
+ground->CreateFixture(&groundFixture);
 }
 
 void PlayPhysics::cleanWorld() {
@@ -15,6 +24,8 @@ m_world = nullptr;
 }
 m_dynamicBodies.clear();
 m_dynamicMap.clear();
+m_origins.clear();
+m_timeAccumulator = 0.0f;
 }
 
 void PlayPhysics::buildBodies(CCArray* objects) {
@@ -55,7 +66,16 @@ body->CreateFixture(&fixtureDef);
 
 m_dynamicBodies.push_back(body);
 m_dynamicMap[obj] = body;
+m_origins.push_back({obj, obj->getPosition(), obj->getRotation()});
 m_bodiesCreated++;
+}
+}
+
+void PlayPhysics::restoreOrigins() {
+for(auto& o : m_origins) {
+if(!o.obj) continue;
+o.obj->setPosition(o.pos);
+o.obj->setRotation(o.rot);
 }
 }
 
@@ -78,4 +98,15 @@ auto pos = body->GetPosition();
 obj->setPosition({pos.x * PTM_RATIO, pos.y * PTM_RATIO});
 obj->setRotation(-body->GetAngle() * (180.0f / b2_pi));
 }
+}
+
+float PlayPhysics::firstBodyY() const {
+if(m_dynamicBodies.empty()) return 0.f;
+return m_dynamicBodies.front()->GetPosition().y * PTM_RATIO;
+}
+
+float PlayPhysics::firstObjY() const {
+if(m_dynamicBodies.empty()) return 0.f;
+auto* obj = reinterpret_cast<GameObject*>(m_dynamicBodies.front()->GetUserData().pointer);
+return obj ? obj->getPositionY() : 0.f;
 }
