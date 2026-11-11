@@ -1,0 +1,21 @@
+{
+	"geode": "5.10.1",
+	"gd": {
+		"win": "2.2081",
+		"android": "2.2081",
+		"mac": "2.2081",
+		"ios": "2.2081"
+	},
+	"id": "seunome.play-physics",
+	"name": "Play Physics",
+	"version": "v0.1.0",
+	"developer": "seunome",
+	"description": "Box2D physics during level playtest (fork of Editor Physics)",
+	"dependencies": {
+		"geode.node-ids": ">=v1.23.3"
+	},
+	"tags": ["gameplay", "enhancement", "offline"],
+	"resources": {
+		"sprites": ["resources/*.png"]
+	}
+}
